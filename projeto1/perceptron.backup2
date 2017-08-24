@@ -1,0 +1,42 @@
+import numpy as np
+import os
+
+#Reading files
+x_matrix=[]
+for root,dirs,files in os.walk('sample'):
+    for file in files:
+        with open(os.path.join(root,file),"r") as auto:
+            a=[]
+            for line in auto:
+                a.append([int(n) for n in line.strip('\n').split(' ')])
+            x_matrix.append(a)
+
+x_matrix=np.asarray(x_matrix)
+weights=np.ones((5,5),dtype=np.int)
+results=[1,1,1,1,1,1,-1,-1,-1,-1,-1,-1]
+stout=[]
+for l in range(4296):
+    stout=[]
+    eta=0.5
+    for i in range(12):
+        stout.append(np.vdot(x_matrix[i],weights))
+    stout= [1 if a>0   else -1 for a in stout ]
+    for i,calculated in enumerate(stout):
+        if(calculated!=results[i]):
+            erro=results[i]-calculated
+            for j,weight_line in enumerate(weights):
+                for k,weight in enumerate(weight_line):
+                    weights[j][k]=weight+erro*eta*x_matrix[i][j][k]
+    print("Esperado loop("+str(l)+"):")
+    print(results)
+    print("Obtido loop("+str(l)+"):")
+    print(stout)
+
+
+
+print(weights)
+# for i,new_weight in enumerate(weights):
+#     new_weight=
+
+#Atualizando o peso
+
