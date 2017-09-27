@@ -1,0 +1,98 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[portuguese]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{mdframed}
+\usepackage{float}
+\usepackage{minted}
+\usepackage{graphicx}
+\usepackage{tcolorbox}
+\definecolor{bg}{rgb}{0.95,0.95,0.95}
+
+\begin{document}
+\begin{titlepage}
+\centering
+\includegraphics[width=0.33\textwidth]{usp.png}\par\vspace{1cm}
+{\scshape\LARGE Universidade de São Paulo\par}
+  \vspace{1cm}
+  {\scshape\Large SCC0270- Introdução a Redes Neurais \par}
+  \vspace{1.5cm}
+  {\huge\bfseries Projeto No.1\par}
+  \vspace{2cm}
+  {\Large\itshape Pedro Morello Abbud \par}
+  \vspace{1cm}
+  Número USP 8058718
+  \vfill
+  Disciplina minsitrada por\par
+  Profa. Dra. Roseli Aparecida Francelin Romero
+  
+
+\vfill 
+% Bottom of the page
+{\large \today\par}
+\end{titlepage}
+\section{Introdução}
+Pretende-se neste documento explicar como foi implementado o perceptron de uma única camada, Adaline (Adaptive Linear Neuron), em python.
+\section{Implementação}
+Foi construída uma classe \emph{Perceptron} que possuí os seguintes métodos: \emph{read\_samples},\emph{train}, \emph{test}, \emph{print\_stats}. O funcionamento destas funções estão explicadas nas subseções a seguir.
+\subsection{read\_samples}
+\begin{listing}[H]
+  \inputminted[fontsize=\footnotesize,breaklines,bgcolor=bg,linenos,breaklines,firstline=17,lastline=29]{python}{perceptron.py}
+\caption{Código da função \emph{read\_samples}}
+\label{lst:read}
+\end{listing}
+A função percorre o diretório relativo que foi especificado pela varíavel \emph{dir} e salva em memória os resultados esperados de cada amostra de treinamento e os valores que definem a amostra. A formatação de cada amostra de treinamento e teste é composto pela primeira linha de header que é o resultado esperado e as demais linhas formam uma matriz 5x5 de números (-1 e 1) separados por espaços.
+\subsection{train}
+\begin{listing}[H]
+  \inputminted[fontsize=\tiny,breaklines,bgcolor=bg,linenos,breaklines,firstline=31,lastline=46]{python}{perceptron.py}
+  \caption{Código da função \emph{train}}
+\label{lst:train}
+\end{listing}
+A função principal do código; é a  função que é  responsável pelo treinamento do perceptron. É a implementação praticamente literal do algoritmo da Regra Delta (LMS):
+\begin{enumerate}
+  \item Iniciar os pesos sinápticos com valores randômicos pequenos ou iguais a zero.
+  \item Aplicar um padr'ao com seu respectivo valor esperado ($t_j$) e verificar a saída da rede ($y_j$).
+  \item Calcular o erro na saída: $E_j = t_j - y_j$
+  \item Se $E_j=0$ , volte ao passo 2. Caso contrário se $E_j\neq 0$, atualizar os pesos: $\Delta w_{ij}      = \eta x_i E_j$
+  \item Volte ao passo 2.
+\end{enumerate}
+\subsection{test}
+\begin{listing}[H]
+  \inputminted[fontsize=\footnotesize,breaklines,bgcolor=bg,linenos,breaklines,firstline=49,lastline=61]{python}{perceptron.py}
+  \caption{Código da função \emph{test}}
+\label{lst:test}
+\end{listing}
+Função responsável por validar a implementação do perceptron. Busca através da função \emph{read\_samples} todos os arquivos contidos na pasta especificada pelo atributo \emph{dir} e os classifica conforme os pesos previamente calculados. A função então mostra na tela quais eram os valores esperados e quais foram os valores antecipados por ele.
+
+\subsection{print\_stats}
+\begin{listing}[H]
+  \inputminted[fontsize=\footnotesize,breaklines,bgcolor=bg,linenos,breaklines,firstline=63,lastline=71]{python}{perceptron.py}
+  \caption{Código da função \emph{print\_stats}.}
+\label{lst:test}
+\end{listing}
+Função responsável por expor atributos da classe que foram calculados após o treinamento.
+\section{Resultados}
+Foi implementado com sucesso o Perceptron Adeline. O programa consegue classificar entradas  de duas classes corretamente,  desde  que estas sejam linearmente separáveis e existe uma superfície de decisão com forma de hiperplano que separe as duas classes. Abaixo temos o output ao chamar as funções \emph{test} e \emph{print\_stats}:
+\begin{listing}
+\begin{verbatim}
+Resultado esperado do teste:
+[1, 1, -1, -1]
+Resultado obtido no teste:
+[1, 1, -1, -1]
+==== Informações deste Perpectron ==== 
+Bias:
+0.06
+Pesos:
+[[1 0 0 0 1]
+ [1 0 0 0 1]
+ [0 0 0 0 0]
+ [0 0 0 0 0]
+ [0 0 1 0 0]]
+Loops até convergência:
+2
+\end{verbatim}
+\label{lst:perceptron}
+\caption{Output do programa perceptron.py.}
+\end{listing}
+\end{document}

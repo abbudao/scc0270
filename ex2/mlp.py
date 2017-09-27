@@ -29,7 +29,7 @@ class perceptron(object):
         self.weights = 2 * self.weights - 1
         self.activation = activation
 
-    def perceptron_output(self, input):
+    def output(self, input):
         """
         Generate the perceptron output applying the weighted input on activation function.
         """
@@ -67,22 +67,42 @@ class mlp(object):
             self.layers.append(perceptron_layer(hidden, previous_layer))
             previous_layer = hidden
 
+        self.tolerance = tolerance
         self.layers.append(perceptron_layer(output, previous_layer))
 
-    def train(self, input_patterns):
-        """Train the MLP network.
-        """
-        for current_pattern in input_patterns.data:
-            # Feedforward
+    def feed_forward(self, input_patterns):
+        """Return local error for Feed Forward method for the MLP network."""
+        local_error = 0
+        for current_pattern in input_patterns:
             input = np.asarray(current_pattern.input)
             for layer in self.layers:
                 layer_output = []
                 for perceptron in layer.perceptrons:
-                    layer_output.append(perceptron.perceptron_output(input))
+                    layer_output.append(perceptron.output(input))
+                # Refer to the input of the next layer
                 input = np.asarray(layer_output)
-            print(layer_output)
+                # print(input)
+                # print(layer_output)
+            # print(current_pattern.output)
+            # print(input)
+            # print(local_error)
+            local_error = local_error + np.square(current_pattern.output -
+                                                  input)
 
-        return
+        return local_error, input
+
+    def back_propagation(self, error_signal, output):
+        delta_output = error_signal * activation(output, derivate=True)
+        pass
+
+    def train(self, input_data):
+        """TODO: Docstring for train.
+        :returns: TODO
+        """
+        local_error, output = self.feed_forward(input_data.data)
+
+
+#        back_propagation(error_signal, output)
 
 
 class pattern(object):
@@ -111,6 +131,7 @@ class data_objects(object):
                         aux_pattern.output.append(int(row[name]))
 
                 self.data.append(aux_pattern)
+        self.normalize()
 
     def test(self):
         """
@@ -120,8 +141,25 @@ class data_objects(object):
             print(str(i.input))
             print(str(i.output))
 
+    def normalize(self):
+        max_value = 0
+        min_value = 0
+        for pattern in self.data:
+            if (max(pattern.input) > max_value):
+                max_value = max(pattern.input)
+            if (min(pattern.input) < min_value):
+                min_value = min(pattern.input)
+
+        for i, pattern in enumerate(self.data):
+            c = []
+            for a in pattern.input:
+                c.append(a / (max_value - min_value))
+            self.data[i].input = c
+        return
+
 
 a = data_objects(3, 1, "./bluetooth.csv")
-b = mlp(3, 4, 2, 1, 0)
+b = mlp(3, 4, 2, 1, 0.2)
+# a.test()
 b.train(a)
 

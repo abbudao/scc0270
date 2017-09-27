@@ -1,0 +1,87 @@
+\documentclass[11pt,a4paper]{report}
+\usepackage[portuguese]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{tikz}
+\usetikzlibrary{calc}
+\usepackage{float}
+\usepackage{graphicx}
+\def\layersep{3.5cm}
+\begin{document}
+\begin{titlepage}
+\centering
+\includegraphics[width=0.33\textwidth]{usp}\par\vspace{1cm}
+{\scshape\LARGE Universidade de São Paulo\par}
+  \vspace{1cm}
+  {\scshape\Large SCE5809 - Redes Neurais\par}
+  \vspace{1.5cm}
+  {\huge\bfseries Exercício em Sala No.1\par}
+  \vspace{2cm}
+  {\Large\itshape Pedro Morello Abbud \par}
+  \vspace{1cm}
+  Número USP 8058718
+  \vfill
+  Disciplina ministrada por\par
+ Profa. Titular Roseli Ap. Francelin Romero 
+
+\vfill 
+% Bottom of the page
+{\large \today\par}
+\end{titlepage}
+
+\section{Enunciado}
+Fazer uma iteração do algoritmo \emph{BackPropagation} (ida e volta) para treinar uma rede multi-camadas a aprender a função XOR.
+\begin{figure}[htpb]
+  \centering
+\begin{tikzpicture}[shorten >=1pt,->,draw=black!50, node distance=\layersep]
+    \tikzstyle{every pin edge}=[<-,shorten <=1pt]
+    \tikzstyle{neuron}=[circle,fill=black!25,minimum size=17pt,inner sep=0pt]
+    \tikzstyle{input neuron}=[neuron, fill=green!50];
+    \tikzstyle{output neuron}=[neuron, fill=red!50];
+    \tikzstyle{hidden neuron}=[neuron, fill=blue!50];
+    \tikzstyle{annot} = [text width=4em, text centered]
+
+    % Draw the input layer nodes
+    \foreach \name / \y in {1,...,2}
+    % This is the same as writing \foreach \name / \y in {1/1,2/2,3/3,4/4}
+        \node[input neuron, pin=left:$x_\y$] (I-\name) at (0,-\y) {};
+
+    % Draw the hidden layer nodes
+    \foreach \name / \y in {1,...,2}
+        \path[yshift=0cm]
+            node[hidden neuron] (H-\name) at (\layersep,-\y cm) {};
+
+    % Draw the output layer node
+            \node[output neuron,pin={[pin edge={->}]right:Output}, right of= H-1] at ($(H-1)!.5!(H-2)$) (O) {};
+
+    % Connect every node in the input layer with every node in the
+    % hidden layer.
+    \foreach \source in {1,...,2}
+    {
+        \foreach \dest in {1,...,2}
+        {
+          \ifodd \dest 
+          \draw (I-\source) -- (H-\dest) node [pos=0.25,left,  sloped,text width=1em] (w\source\dest) {$w_{\source\dest}$};
+          \else
+          \draw (I-\source) -- (H-\dest) node [pos=0.75,left,  sloped,text width=1em] (w\source\dest) {$w_{\source\dest}$};
+          \fi
+%            \path (I-\source) edge (H-\dest);
+%            \node (w\source\dest) at ($(I-\source)!.5!(H-\dest)$) {$w_\source\dest$};
+        }
+    }
+    % Connect every node in the hidden layer with the output layer
+    \foreach \source in {1,...,2}
+        \path (H-\source) edge (O);
+    % Annotate the layers
+    \node[annot,above of=H-1, node distance=1cm] (hl) {Hidden layer};
+    \node[annot,left of=hl] {Input layer};
+    \node[annot,right of=hl] {Output layer};
+\end{tikzpicture}
+
+  \caption{}
+  \label{fig:}
+\end{figure}
+
+\section{Resolução}
+\end{document}

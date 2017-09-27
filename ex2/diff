@@ -1,0 +1,426 @@
+diff --git a/ex2/mlp.py b/ex2/mlp.py
+index b8d7a11..297d72e 100644
+--- a/ex2/mlp.py
++++ b/ex2/mlp.py
+@@ -29,7 +29,7 @@ class perceptron(object):
+         self.weights = 2 * self.weights - 1
+         self.activation = activation
+ 
+-    def perceptron_output(self, input):
++    def output(self, input):
+         """
+         Generate the perceptron output applying the weighted input on activation function.
+         """
+@@ -67,20 +67,29 @@ class mlp(object):
+             self.layers.append(perceptron_layer(hidden, previous_layer))
+             previous_layer = hidden
+ 
++        self.tolerance = tolerance
+         self.layers.append(perceptron_layer(output, previous_layer))
+ 
+     def train(self, input_patterns):
+         """Train the MLP network.
+         """
++        global_error = 1
++        local_error = 1
+         for current_pattern in input_patterns.data:
+-            # Feedforward
++            # Calculate the output from all layers
+             input = np.asarray(current_pattern.input)
+             for layer in self.layers:
+                 layer_output = []
+                 for perceptron in layer.perceptrons:
+-                    layer_output.append(perceptron.perceptron_output(input))
+-                input = np.asarray(layer_output)
+-            print(layer_output)
++                    layer_output.append(perceptron.output(input))
++                    input = np.asarray(layer_output)
++                    # If on first execution, fix fake condition
++                    if (global_error == 1 and local_error == 1):
++                        local_error = local_error - 1
++
++                print(current_pattern.output)
++                local_error += np.square(current_pattern.output -
++                                         input)
+ 
+         return
+ 
+@@ -122,6 +131,6 @@ class data_objects(object):
+ 
+ 
+ a = data_objects(3, 1, "./bluetooth.csv")
+-b = mlp(3, 4, 2, 1, 0)
++b = mlp(3, 4, 2, 1, 0.2)
++#a.test()
+ b.train(a)
+-
+diff --git a/projeto1/perceptron.backup b/projeto1/perceptron.backup
+deleted file mode 100644
+index 85956a1..0000000
+--- a/projeto1/perceptron.backup
++++ /dev/null
+@@ -1,42 +0,0 @@
+-import numpy as np
+-import os
+-
+-#Reading files
+-x_matrix=[]
+-for root,dirs,files in os.walk('sample'):
+-    for file in files:
+-        with open(os.path.join(root,file),"r") as auto:
+-            a=[]
+-            for line in auto:
+-                a.append([int(n) for n in line.strip('\n').split(' ')])
+-            x_matrix.append(a)
+-
+-x_matrix=np.asarray(x_matrix)
+-weights=np.ones((5,5),dtype=np.int)
+-results=[1,1,1,1,1,1,-1,-1,-1,-1,-1,-1]
+-stout=[]
+-for l in range(4296):
+-    stout=[]
+-    eta=0.5
+-    for i in range(12):
+-        stout.append(np.vdot(x_matrix[i],weights))
+-    stout= [1 if a>0   else -1 for a in stout ]
+-    for i,calculated in enumerate(stout):
+-        if(calculated!=results[i]):
+-            erro=results[i]-calculated
+-            for j,weight_line in enumerate(weights):
+-                for k,weight in enumerate(weight_line):
+-                    weights[j][k]=weight+erro*eta*x_matrix[i][j][k]
+-    print("Esperado loop("+str(l)+"):")
+-    print(results)
+-    print("Obtido loop("+str(l)+"):")
+-    print(stout)
+-
+-
+-
+-print(weights)
+-# for i,new_weight in enumerate(weights):
+-#     new_weight=
+-
+-#Atualizando o peso
+-
+diff --git a/projeto1/perceptron.backup2 b/projeto1/perceptron.backup2
+deleted file mode 100644
+index 85956a1..0000000
+--- a/projeto1/perceptron.backup2
++++ /dev/null
+@@ -1,42 +0,0 @@
+-import numpy as np
+-import os
+-
+-#Reading files
+-x_matrix=[]
+-for root,dirs,files in os.walk('sample'):
+-    for file in files:
+-        with open(os.path.join(root,file),"r") as auto:
+-            a=[]
+-            for line in auto:
+-                a.append([int(n) for n in line.strip('\n').split(' ')])
+-            x_matrix.append(a)
+-
+-x_matrix=np.asarray(x_matrix)
+-weights=np.ones((5,5),dtype=np.int)
+-results=[1,1,1,1,1,1,-1,-1,-1,-1,-1,-1]
+-stout=[]
+-for l in range(4296):
+-    stout=[]
+-    eta=0.5
+-    for i in range(12):
+-        stout.append(np.vdot(x_matrix[i],weights))
+-    stout= [1 if a>0   else -1 for a in stout ]
+-    for i,calculated in enumerate(stout):
+-        if(calculated!=results[i]):
+-            erro=results[i]-calculated
+-            for j,weight_line in enumerate(weights):
+-                for k,weight in enumerate(weight_line):
+-                    weights[j][k]=weight+erro*eta*x_matrix[i][j][k]
+-    print("Esperado loop("+str(l)+"):")
+-    print(results)
+-    print("Obtido loop("+str(l)+"):")
+-    print(stout)
+-
+-
+-
+-print(weights)
+-# for i,new_weight in enumerate(weights):
+-#     new_weight=
+-
+-#Atualizando o peso
+-
+diff --git a/projeto1/perceptron.py b/projeto1/perceptron.py
+deleted file mode 100644
+index 57b109f..0000000
+--- a/projeto1/perceptron.py
++++ /dev/null
+@@ -1,76 +0,0 @@
+-import numpy as np
+-import os
+-class perceptron(object):
+-
+-    """Docstring for perceptron. """
+-
+-    def __init__(self):
+-        """TODO: to be defined1. """
+-        
+-#Reading files
+-def read_samples(dir):
+-    print("====read_samples output======")
+-    matrix=[]
+-    expected=[]
+-    for root,dirs,files in os.walk(dir):
+-        for file in files:
+-            print("Arquivo lido:"+file)
+-            with open(os.path.join(root,file),"r") as auto:
+-                expected.append(int(auto.readline().strip('\n')))
+-                a=[]
+-                for line in auto:
+-                    a.append([int(n) for n in line.strip('\n').split(' ')])
+-                matrix.append(a)
+-    return np.asarray(matrix),expected
+-
+-def training(x_matrix,results):
+-    print("====training output======")
+-    bias=0
+-    loop=0
+-    weights=np.ones((5,5),dtype=np.int)
+-    stout=[]
+-    while results!=stout:
+-        loop=loop+1
+-        stout=[]
+-        eta=0.01
+-        for matriz in x_matrix:
+-            stout.append(np.vdot(matriz,weights)+bias)
+-            stout= [1 if a>0   else -1 for a in stout ]
+-            for i,calculated in enumerate(stout):
+-                if(calculated!=results[i]):
+-                    erro=results[i]-calculated
+-                    bias=erro*eta+bias
+-                    for j,weight_line in enumerate(weights):
+-                        for k,weight in enumerate(weight_line):
+-                            weights[j][k]=weight+erro*eta*x_matrix[i][j][k]
+-    print("Esperado:")
+-    print(results)
+-    print("Obtido:")
+-    print(stout)
+-    print("Bias:")
+-    print(bias)
+-    print("Pesos:")
+-    print(weights)
+-    print("Iterações até convergência:")
+-    print(loop)
+-    return weights,bias
+-
+-def test(weights,bias,dir):
+-    matrix,expected= read_samples(dir)
+-    print("====test output======")
+-    stout=[]
+-    for matriz in matrix:
+-        stout.append(np.vdot(matriz,weights)+bias)
+-        stout= [1 if a>0   else -1 for a in stout ]
+-    print("Esperado:")
+-    print(expected)
+-    print("Obtido:")
+-    print(stout)
+-
+-
+-
+-
+-#Atualizando o peso
+-matriz,esperado=read_samples('sample')
+-weights,bias=training(matriz,esperado)
+-test(weights,bias,'test')
+diff --git a/projeto1/sample/1.txt b/projeto1/sample/1.txt
+deleted file mode 100644
+index 4d06a45..0000000
+--- a/projeto1/sample/1.txt
++++ /dev/null
+@@ -1,6 +0,0 @@
+-1
+-+1 -1 -1 -1 +1
+-+1 -1 -1 -1 +1
+--1 +1 -1 +1 -1
+--1 +1 -1 +1 -1
+--1 -1 +1 -1 -1
+diff --git a/projeto1/sample/10.txt b/projeto1/sample/10.txt
+deleted file mode 100644
+index 96c8643..0000000
+--- a/projeto1/sample/10.txt
++++ /dev/null
+@@ -1,6 +0,0 @@
+--1
+--1 -1 +1 -1 -1
+--1 +1 +1 +1 -1
+--1 +1 +1 +1 -1
+-+1 +1 -1 +1 +1
+-+1 +1 -1 +1 +1
+diff --git a/projeto1/sample/11.txt b/projeto1/sample/11.txt
+deleted file mode 100644
+index bad55f3..0000000
+--- a/projeto1/sample/11.txt
++++ /dev/null
+@@ -1,6 +0,0 @@
+--1
+--1 -1 +1 -1 -1
+--1 +1 +1 +1 -1
+-+1 +1 +1 +1 +1
+-+1 +1 -1 +1 +1
+-+1 +1 -1 +1 +1
+diff --git a/projeto1/sample/12.txt b/projeto1/sample/12.txt
+deleted file mode 100644
+index ca04843..0000000
+--- a/projeto1/sample/12.txt
++++ /dev/null
+@@ -1,6 +0,0 @@
+--1
+--1 +1 +1 +1 -1
+--1 +1 +1 +1 -1
+-+1 +1 +1 +1 +1
+-+1 +1 -1 +1 +1
+-+1 +1 -1 +1 +1
+diff --git a/projeto1/sample/2.txt b/projeto1/sample/2.txt
+deleted file mode 100644
+index 7dfbb38..0000000
+--- a/projeto1/sample/2.txt
++++ /dev/null
+@@ -1,6 +0,0 @@
+-1
+-+1 -1 -1 -1 +1
+-+1 -1 -1 -1 +1
+-+1 +1 -1 +1 +1
+-+1 +1 -1 +1 +1
+--1 +1 +1 +1 -1
+diff --git a/projeto1/sample/3.txt b/projeto1/sample/3.txt
+deleted file mode 100644
+index 735c9eb..0000000
+--- a/projeto1/sample/3.txt
++++ /dev/null
+@@ -1,6 +0,0 @@
+-1
+-+1 -1 -1 -1 +1
+-+1 -1 -1 -1 +1
+-+1 +1 -1 +1 +1
+--1 +1 -1 +1 -1
+--1 -1 +1 -1 -1
+diff --git a/projeto1/sample/4.txt b/projeto1/sample/4.txt
+deleted file mode 100644
+index 519de93..0000000
+--- a/projeto1/sample/4.txt
++++ /dev/null
+@@ -1,6 +0,0 @@
+-1
+-+1 -1 -1 -1 +1
+-+1 -1 -1 -1 +1
+--1 +1 -1 +1 -1
+--1 +1 -1 +1 -1
+--1 +1 +1 +1 -1
+diff --git a/projeto1/sample/5.txt b/projeto1/sample/5.txt
+deleted file mode 100644
+index 5e062de..0000000
+--- a/projeto1/sample/5.txt
++++ /dev/null
+@@ -1,6 +0,0 @@
+-1
+-+1 +1 -1 +1 +1
+-+1 +1 -1 +1 +1
+-+1 +1 -1 +1 -1
+--1 +1 -1 +1 -1
+--1 +1 +1 +1 -1
+diff --git a/projeto1/sample/6.txt b/projeto1/sample/6.txt
+deleted file mode 100644
+index d75e838..0000000
+--- a/projeto1/sample/6.txt
++++ /dev/null
+@@ -1,6 +0,0 @@
+-1
+-+1 -1 -1 -1 +1
+-+1 -1 -1 -1 +1
+--1 +1 -1 +1 -1
+--1 +1 +1 +1 -1
+--1 -1 +1 -1 -1
+diff --git a/projeto1/sample/7.txt b/projeto1/sample/7.txt
+deleted file mode 100644
+index 29f7799..0000000
+--- a/projeto1/sample/7.txt
++++ /dev/null
+@@ -1,6 +0,0 @@
+--1
+--1 -1 +1 -1 -1
+--1 -1 +1 -1 -1
+--1 +1 -1 +1 -1
+--1 +1 -1 -1 +1
+-+1 -1 -1 -1 +1
+diff --git a/projeto1/sample/8.txt b/projeto1/sample/8.txt
+deleted file mode 100644
+index 5a1d04a..0000000
+--- a/projeto1/sample/8.txt
++++ /dev/null
+@@ -1,6 +0,0 @@
+--1
+--1 -1 +1 -1 -1
+--1 +1 +1 +1 -1
+--1 +1 +1 +1 -1
+--1 +1 -1 -1 +1
+-+1 -1 -1 -1 +1
+diff --git a/projeto1/sample/9.txt b/projeto1/sample/9.txt
+deleted file mode 100644
+index 3be2fb7..0000000
+--- a/projeto1/sample/9.txt
++++ /dev/null
+@@ -1,6 +0,0 @@
+--1
+--1 -1 +1 -1 -1
+--1 +1 +1 +1 -1
+--1 +1 +1 +1 -1
+-+1 +1 -1 +1 +1
+-+1 -1 -1 -1 +1
+diff --git a/projeto1/test/1.txt b/projeto1/test/1.txt
+deleted file mode 100644
+index 7c046e6..0000000
+--- a/projeto1/test/1.txt
++++ /dev/null
+@@ -1,6 +0,0 @@
+--1
+--1 +1 +1 +1 -1
+--1 +1 +1 +1 -1
+-+1 +1 +1 +1 +1
+-+1 +1 -1 +1 +1
+--1 +1 -1 +1 +1
+diff --git a/projeto1/test/2.txt b/projeto1/test/2.txt
+deleted file mode 100644
+index 67c8052..0000000
+--- a/projeto1/test/2.txt
++++ /dev/null
+@@ -1,6 +0,0 @@
+-1
+-+1 -1 +1 -1 +1
+-+1 -1 -1 -1 +1
+-+1 +1 -1 +1 +1
+--1 +1 -1 +1 -1
+--1 -1 +1 -1 -1
+diff --git a/projeto1/test/3.txt b/projeto1/test/3.txt
+deleted file mode 100644
+index c24bba8..0000000
+--- a/projeto1/test/3.txt
++++ /dev/null
+@@ -1,6 +0,0 @@
+--1
+--1 -1 +1 -1 -1
+--1 +1 +1 +1 -1
+-+1 +1 +1 +1 -1
+--1 +1 -1 -1 +1
+-+1 -1 -1 -1 +1
+diff --git a/projeto1/test/4.txt b/projeto1/test/4.txt
+deleted file mode 100644
+index 16fa782..0000000
+--- a/projeto1/test/4.txt
++++ /dev/null
+@@ -1,6 +0,0 @@
+-1
+-+1 -1 -1 -1 +1
+-+1 -1 -1 -1 +1
+-+1 +1 -1 +1 +1
+-+1 +1 -1 +1 +1
+-+1 +1 +1 +1 +1
